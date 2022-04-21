@@ -1,20 +1,20 @@
 package edu.upenn.cit594.util;
 
 public class Population {
-    int zip;
-    int population;
-    int marketValue;
+    String zip;
+    String population;
+    String marketValue;
 
-    public Population (int zip, int population) {
+    public Population (String zip, String population) {
         this.zip = zip;
         this.population = population;
     }
 
-    public void setMarketValue(int marketValue) {
+    public void setMarketValue(String marketValue) {
         this.marketValue = marketValue;
     }
 
-    public int getMarketValue() {
+    public String getMarketValue() {
         return this.marketValue;
     }
 
