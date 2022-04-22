@@ -2,13 +2,11 @@ package edu.upenn.cit594.datamanagement;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
 import edu.upenn.cit594.util.Covid;
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
 
 import java.util.ArrayList;
-import java.sql.Timestamp;
 
 public class CovidJson implements CovidReader {
     protected String filename;
@@ -19,17 +17,22 @@ public class CovidJson implements CovidReader {
     @Override
     public ArrayList<Covid> getCovidList() throws IOException {
         ArrayList <Covid> covidList = new ArrayList<>();
+        String zip = null;
+        String time = null;
+        String partialVac = null;
+        String fullyVac = null;
+        String boosters = null;
         try {
             String filePath = filename;
             JSONArray jArray = (JSONArray) (new JSONParser()).parse(new FileReader(filePath));
 
             for (int i=0; i <jArray.size(); ++i){
                 JSONObject obj = (JSONObject)jArray.get(i);
-                int zip = (int) obj.get("zip_code");
-                Timestamp time = Timestamp.valueOf(obj.get("2021-03-25 17:20:02").toString());
-                int partialVac = (int) obj.get("partially_vaccinated");
-                int fullyVac = (int) obj.get("fully_vaccinated");
-                int boosters = (int) obj.get("boosted");
+                try {zip = obj.get("zip_code").toString();} catch (Exception e) {zip = null;} ;
+                try {time = obj.get("2021-03-25 17:20:02").toString();} catch (Exception e) {time = "0";} ;
+                try {partialVac = obj.get("partially_vaccinated").toString();} catch (Exception e) {partialVac = "0";} ;
+                try {fullyVac = obj.get("fully_vaccinated").toString();} catch (Exception e) {fullyVac = "0";} ;
+                try {boosters = obj.get("boosted").toString();} catch (Exception e) {boosters = "0";} ;
                 Covid covid = new Covid(zip,time, partialVac,fullyVac, boosters);
                 covidList.add(covid);
             }
