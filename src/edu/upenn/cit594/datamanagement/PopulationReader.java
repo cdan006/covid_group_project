@@ -14,7 +14,7 @@ public class PopulationReader {
         filename = name;
     }
 
-    public ArrayList<Population> getPropertyList() throws IOException {
+    public ArrayList<Population> getPopulationList() throws IOException {
         ArrayList <Population> populationList = new ArrayList<>();
         String zip = null;
         String totalPopulation = null;
