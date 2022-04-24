@@ -102,7 +102,7 @@ public class PropertyReader {
                         }
                         state = "add";
                     }
-                } else if (state == "new field") {
+                } else if (state.equals("new field")) {
                     if (priorContent == 44) {
                         c++;
                         state = "new field";
@@ -122,7 +122,7 @@ public class PropertyReader {
                         }
                         state = "add";
                     }
-                } else if (state == "new field/ open quote") {
+                } else if (state.equals("new field/ open quote")) {
                     if (priorContent ==44) {
                         String s = String.valueOf(prior);
                         if (element == null) {
@@ -161,7 +161,7 @@ public class PropertyReader {
                         state = "open quote";
                     }
 
-                } else if (state == "open quote") {
+                } else if (state.equals("open quote")) {
                     if (priorContent ==44) {
                         String s = String.valueOf(prior);
                         if (element == null) {
@@ -203,7 +203,7 @@ public class PropertyReader {
                     }
 
 
-                } else if (state == "close quote") {
+                } else if (state.equals("close quote")) {
                    if (priorContent == 44) {
                        elementArray[r][c] = element;
                        element = null;
@@ -216,7 +216,7 @@ public class PropertyReader {
                        c = 0;
                        r++;
                    }
-                } else if (state == "add") {
+                } else if (state.equals("add")) {
                     if (priorContent == 44) {
                         elementArray[r][c] = element;
                         element = null;
