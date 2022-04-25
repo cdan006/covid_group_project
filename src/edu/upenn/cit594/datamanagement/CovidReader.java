@@ -9,4 +9,7 @@ import java.util.*;
 public interface CovidReader {
     public ArrayList<Covid> getCovidList() throws IOException;
 
+    public String getFileName();
+
 }
+

@@ -9,6 +9,10 @@ public class ArgumentReader {
     protected String propertiesFile;
     protected String populationFile;
     protected String logFile;
+    protected String covidArgument;
+    protected String propertiesArgument;
+    protected String populationArgument;
+    protected String logArgument;
 
 
 
@@ -52,11 +56,7 @@ public class ArgumentReader {
                 return 0;
             }
         }
-        if (this.logFile !=null) {
-            if (fileExistOpen(this.logFile) == false){
-                return 0;
-            }
-        }
+
         if ((covidFile ==  propertiesFile && covidFile!=null && propertiesFile!=null)||
                 (covidFile == populationFile && covidFile!=null && populationFile!=null)||
                 (covidFile == logFile && covidFile!=null && logFile!=null)||
@@ -77,12 +77,16 @@ public class ArgumentReader {
         String file = argSplit[1];
         if (Name.equals("covid")) {
             this.covidFile = file;
+            this.covidArgument = "--"+Name+"="+file;
         } else if (Name.equals("properties")) {
             this.propertiesFile = file;
+            this.propertiesArgument = "--"+Name+"="+file;
         } else if (Name.equals("population")) {
             this.populationFile = file;
+            this.populationArgument = "--"+Name+"="+file;
         } else if (Name.equals("log")) {
             this.logFile = file;
+            this.logArgument = "--"+Name+"="+file;
         }
     }
 
@@ -111,32 +115,15 @@ public class ArgumentReader {
         return this.populationFile;
     }
     public String getLogFile() {return this.logFile;}
-
+    public String getCovidArgument() {
+        return this.covidArgument;
+    }
+    public String getPropertiesArgument() {
+        return this.propertiesArgument;
+    }
+    public String getPopulationArgument() {
+        return this.populationArgument;
+    }
+    public String getLogArgument() {return this.logArgument;}
 
 }
-  /*
-        if (zeroName == "covid") {
-            covidFile = args[0];
-        } else if (zeroName == "properties") {
-            propertiesFile = args[0];
-        } else if (zeroName == "population") {
-            populationFile = args[0];
-        } else if (zeroName == "log") {
-            logFile = args[0];
-        } else {
-            return 0;
-        }
-
-        Pattern pPropertiesRegex = Pattern.compile("^--(?<name>.+?)=(?<value>.+)$");
-        Matcher mPropertiesRegex = pPropertiesRegex.matcher(propertiesFile);
-        boolean propertiesRegex = mPropertiesRegex.find();
-
-        Pattern pPopulationRegex = Pattern.compile("^--(?<name>.+?)=(?<value>.+)$");
-        Matcher mPopulationRegex = pPopulationRegex.matcher(populationFile);
-        boolean populationRegex = mPopulationRegex.find();
-
-        Pattern plogFileRegex = Pattern.compile("^--(?<name>.+?)=(?<value>.+)$");
-        Matcher mlogFileRegex = plogFileRegex.matcher(logFile);
-        boolean logFileRegex = mlogFileRegex.find();
-
-         */
