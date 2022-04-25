@@ -36,7 +36,7 @@ public class CovidCsv implements CovidReader {
                 String []lineSplit = line.split(",");
                 if (i !=0) {
                     try {zip = lineSplit[zipIndex];} catch (Exception e) {zip = null;}
-                    try { time = lineSplit[timeIndex];} catch (Exception e) {time = null;}
+                    try {time = lineSplit[timeIndex];} catch (Exception e) {time = null;}
                     try {partialVac = lineSplit[partialVacIndex];} catch (Exception e) {partialVac = "0";}
                     try {fullyVac = lineSplit[fullyVacIndex];} catch (Exception e) {fullyVac = "0";}
                     try {boosters = lineSplit[boostersIndex];} catch (Exception e) {boosters = "0";}

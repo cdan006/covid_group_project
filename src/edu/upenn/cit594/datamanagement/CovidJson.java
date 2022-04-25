@@ -29,7 +29,7 @@ public class CovidJson implements CovidReader {
             for (int i=0; i <jArray.size(); ++i){
                 JSONObject obj = (JSONObject)jArray.get(i);
                 try {zip = obj.get("zip_code").toString();} catch (Exception e) {zip = null;} ;
-                try {time = obj.get("2021-03-25 17:20:02").toString();} catch (Exception e) {time = "0";} ;
+                try {time = obj.get("etl_timestamp").toString();} catch (Exception e) {time = null;}
                 try {partialVac = obj.get("partially_vaccinated").toString();} catch (Exception e) {partialVac = "0";} ;
                 try {fullyVac = obj.get("fully_vaccinated").toString();} catch (Exception e) {fullyVac = "0";} ;
                 try {boosters = obj.get("boosted").toString();} catch (Exception e) {boosters = "0";} ;

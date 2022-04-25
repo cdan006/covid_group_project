@@ -5,13 +5,15 @@ public class Covid {
 
     String zip;
     String time;
+    String date;
     String partialVac;
     String fullyVac;
     String boosters;
 
     public Covid (String zip, String time, String partialVac, String fullyVac, String boosters) {
         this.zip = zip;
-        this.time = time;
+        this.time = time.substring(1,11);
+        this.date = time.substring(12,time.length()-1);
         this.partialVac = partialVac;
         this.fullyVac = fullyVac;
         this.boosters = boosters;
@@ -22,6 +24,9 @@ public class Covid {
     }
     public String getTime() {
         return this.time;
+    }
+    public String getDate() {
+        return this.date;
     }
 
     public String getPartialVac() {
