@@ -10,10 +10,10 @@ public class Covid {
     String fullyVac;
     String boosters;
 
-    public Covid (String zip, String time, String partialVac, String fullyVac, String boosters) {
+    public Covid (String zip, String time, String date, String partialVac, String fullyVac, String boosters) {
         this.zip = zip;
-        this.time = time.substring(1,11);
-        this.date = time.substring(12,time.length()-1);
+        this.time = time;
+        this.date = date;
         this.partialVac = partialVac;
         this.fullyVac = fullyVac;
         this.boosters = boosters;

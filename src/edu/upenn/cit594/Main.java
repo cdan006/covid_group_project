@@ -21,9 +21,16 @@ public class Main {
             System.out.println("Invalid Argument files");
             return;
         }
+        CovidReader covidReader = null;
+        //ArrayList<Covid> covidList = null;
+        if (argumentReader.getCovidFile().endsWith(".csv")) {
+            covidReader = new CovidCsv(argumentReader.getCovidFile());
+            //covidList = covidReader.getCovidList();
+        } else {
+            covidReader = new CovidJson(argumentReader.getCovidFile());
+            //covidList = covidReader.getCovidList();
+        }
 
-        CovidCsv covidCsv = new CovidCsv(argumentReader.getCovidFile());
-        //ArrayList<Covid> covidList = covidCsv.getCovidList();
 
         PopulationReader populationReader = new PopulationReader(argumentReader.getPopulationFile());
         //ArrayList<Population> populationList = populationReader.getPopulationList();
@@ -34,7 +41,7 @@ public class Main {
         Logger loggingFile = Logger.getInstance();
         //loggingFile.setLogFile(argumentReader.getLogFile());
 
-        Processor processor = new Processor(argumentReader,covidCsv,populationReader,propertyReader, loggingFile);
+        Processor processor = new Processor(argumentReader,covidReader,populationReader,propertyReader, loggingFile);
 
         UserInterface ui = new UserInterface(processor, loggingFile);
         ui.display();

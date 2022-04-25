@@ -19,6 +19,7 @@ public class CovidCsv implements CovidReader {
         ArrayList <Covid> covidList = new ArrayList<>();
         String zip = null;
         String time = null;
+        String date = null;
         String partialVac = null;
         String fullyVac = null;
         String boosters = null;
@@ -36,11 +37,12 @@ public class CovidCsv implements CovidReader {
                 String []lineSplit = line.split(",");
                 if (i !=0) {
                     try {zip = lineSplit[zipIndex];} catch (Exception e) {zip = null;}
-                    try {time = lineSplit[timeIndex];} catch (Exception e) {time = null;}
+                    try {time = lineSplit[timeIndex].substring(1,11);} catch (Exception e) {time = null;}
+                    try {date = lineSplit[timeIndex].substring(11,lineSplit[timeIndex].length()-1);} catch (Exception e) {date = null;}
                     try {partialVac = lineSplit[partialVacIndex];} catch (Exception e) {partialVac = "0";}
                     try {fullyVac = lineSplit[fullyVacIndex];} catch (Exception e) {fullyVac = "0";}
                     try {boosters = lineSplit[boostersIndex];} catch (Exception e) {boosters = "0";}
-                    Covid covid = new Covid(zip, time,partialVac,  fullyVac, boosters);
+                    Covid covid = new Covid(zip, time,date, partialVac,  fullyVac, boosters);
                     covidList.add(covid);
                 } else {
                     int l = 0;
