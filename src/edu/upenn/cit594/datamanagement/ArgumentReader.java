@@ -1,5 +1,8 @@
 package edu.upenn.cit594.datamanagement;
 
+import edu.upenn.cit594.logging.Logger;
+
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.File;
@@ -15,8 +18,9 @@ public class ArgumentReader {
     protected String logArgument;
 
 
-
-    public int argumenthandling (String [] args) {
+    //CALL TO DETERMINE IF THE APPROPRIATE ARGUMENTS ARE PROVIDED
+    public int argumenthandling (String [] args) throws IOException {
+        //CHECK THE NUMBER OF ARGUMENTS AND IF THE FILES ARE IN THE RIGHT FORMAT
         if (args.length>0) {
             fileSelection(args[0]);
             if (fileRegex(args[0]) == false ) {
@@ -41,6 +45,7 @@ public class ArgumentReader {
                 return 0;
             }
         }
+        //CHECK THAT EACH FILE EXISTS AND THAT IT CAN BE OPENED
         if (this.covidFile !=null) {
             if (fileExistOpen(this.covidFile) == false){
                 return 0;
@@ -56,21 +61,25 @@ public class ArgumentReader {
                 return 0;
             }
         }
-
+        //CHECK TO MAKE SURE THE SAME FILES WERE NOT PROVIDED TWICE
         if ((covidFile ==  propertiesFile && covidFile!=null && propertiesFile!=null)||
                 (covidFile == populationFile && covidFile!=null && populationFile!=null)||
                 (covidFile == logFile && covidFile!=null && logFile!=null)||
                 (propertiesFile == populationFile && propertiesFile!=null && populationFile!=null)||
                 (propertiesFile == logFile && propertiesFile!=null && logFile!=null)||
                 (populationFile == logFile && populationFile!=null && logFile!=null)||
-        args.length>4 || (!covidFile.toLowerCase().endsWith(".json") && !covidFile.toLowerCase().endsWith(".csv") && covidFile!=null)
+                args.length>4 || (!covidFile.toLowerCase().endsWith(".json") && !covidFile.toLowerCase().endsWith(".csv") && covidFile!=null)
         ) {
             return 0;
         } else {
+            Logger l = Logger.getInstance();
+            l.setLogFile(logFile);
+            l.log(System.currentTimeMillis() +" "+ covidArgument+" "+propertiesArgument+ " "+populationArgument+"\n");
             return 1;
         }
     }
 
+    //METHOD TO SELECT THE SPECIFIC FILE AND THE ASSOCIATED ARGUMENT
     public void fileSelection (String arg) {
         String[] argSplit = arg.substring(2).split("=");
         String Name = argSplit[0];
@@ -90,6 +99,7 @@ public class ArgumentReader {
         }
     }
 
+    //CHECK THAT THE ARGUMENT IS FORMATED CORRECTED
     public boolean fileRegex (String file) {
         Pattern pRegex = Pattern.compile("^--(?<name>.+?)=(?<value>.+)$");
         Matcher mRegex = pRegex.matcher(file);
@@ -97,6 +107,7 @@ public class ArgumentReader {
         return fileRegex;
     }
 
+    //CHECK THAT THE FILE OPENS AND EXISTS
     public boolean fileExistOpen (String file) {
         File fileType = new File(file);
         if (fileType.exists() == false || fileType.canRead()==false) {
@@ -105,6 +116,7 @@ public class ArgumentReader {
         return true;
     }
 
+    //GETTER FUNCTIONS
     public String getCovidFile() {
         return this.covidFile;
     }

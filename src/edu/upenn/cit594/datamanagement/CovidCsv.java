@@ -1,5 +1,6 @@
 package edu.upenn.cit594.datamanagement;
 
+import edu.upenn.cit594.logging.Logger;
 import edu.upenn.cit594.util.Covid;
 
 import java.io.BufferedReader;
@@ -10,8 +11,10 @@ import java.util.Arrays;
 
 public class CovidCsv implements CovidReader {
     protected String filename;
-    public CovidCsv(String name) {
+    protected String logFile;
+    public CovidCsv(String name, Logger logName) {
         filename = name;
+        this.logFile =logName.getLogFile();
     }
 
     @Override
@@ -24,8 +27,12 @@ public class CovidCsv implements CovidReader {
         String fullyVac = null;
         String boosters = null;
         try {
+            //READ THE FILE
             FileReader fileReader = new FileReader(filename);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
+            Logger l = Logger.getInstance();
+            l.setLogFile(logFile);
+            l.log(System.currentTimeMillis() + " "+filename+"\n");
             String line;
             int i = 0;
             int zipIndex = 0;
@@ -33,22 +40,23 @@ public class CovidCsv implements CovidReader {
             int partialVacIndex=0;
             int fullyVacIndex = 0;
             int boostersIndex = 0;
+            //ITERATE THROUGH THE LINES OF THE FILE USING TRY CATCH TO IGNORE ANY VALUES THAT GIVE IT AN ERROR
             while ((line = bufferedReader.readLine()) != null) {
                 String []lineSplit = line.split(",");
                 if (i !=0) {
                     try {zip = lineSplit[zipIndex];} catch (Exception e) {zip = null;}
-                    try {time = lineSplit[timeIndex].substring(1,11);} catch (Exception e) {time = null;}
-                    try {date = lineSplit[timeIndex].substring(11,lineSplit[timeIndex].length()-1);} catch (Exception e) {date = null;}
+                    try {date = lineSplit[timeIndex].substring(1,11);} catch (Exception e) {date = null;} //USE SUBSTRING TO PARSE THE TIME AND DATE
+                    try {time = lineSplit[timeIndex].substring(11,lineSplit[timeIndex].length()-1);} catch (Exception e) {time = null;}
                     try {partialVac = lineSplit[partialVacIndex];} catch (Exception e) {partialVac = "0";}
                     try {fullyVac = lineSplit[fullyVacIndex];} catch (Exception e) {fullyVac = "0";}
                     try {boosters = lineSplit[boostersIndex];} catch (Exception e) {boosters = "0";}
                     Covid covid = new Covid(zip, time,date, partialVac,  fullyVac, boosters);
                     covidList.add(covid);
                 } else {
-                    int l = 0;
-                    while (l<lineSplit.length) {
-                        lineSplit[l] = lineSplit[l].replace("\"","");
-                        l++;
+                    int j = 0;
+                    while (j<lineSplit.length) { //DEFINE THE INDEX OF THE COLUMNS WE NEED TO INCLUDE IN OUR COVID CLASS
+                        lineSplit[j] = lineSplit[j].replace("\"","");
+                        j++;
                     }
                     zipIndex = Arrays.asList(lineSplit).indexOf("zip_code");
                     timeIndex = Arrays.asList(lineSplit).indexOf("etl_timestamp");

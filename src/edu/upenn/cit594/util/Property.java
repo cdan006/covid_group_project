@@ -14,4 +14,18 @@ public class Property {
 
     }
 
+    public String getMarketValue() {
+        return marketValue;
+    }
+
+    public String getTotalLiveableArea() {
+        return totalLiveableArea;
+    }
+
+    public String getZip() {
+        return zip;
+    }
+
+
+
 }

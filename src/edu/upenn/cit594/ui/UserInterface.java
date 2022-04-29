@@ -6,7 +6,11 @@ import edu.upenn.cit594.datamanagement.PopulationReader;
 import edu.upenn.cit594.datamanagement.PropertyReader;
 import edu.upenn.cit594.logging.Logger;
 import edu.upenn.cit594.processor.Processor;
+import edu.upenn.cit594.util.Covid;
+import edu.upenn.cit594.util.Population;
+import edu.upenn.cit594.util.Property;
 
+import java.sql.Array;
 import java.util.*;
 
 import java.io.IOException;
@@ -17,6 +21,7 @@ import java.util.regex.Pattern;
 public class UserInterface {
     protected Processor processor;
     protected Logger logger;
+    protected String logFile;
     //protected CovidReader covidReader;
     //protected PopulationReader populationReader;
     //protected PropertyReader propertyReader;
@@ -27,21 +32,23 @@ public class UserInterface {
         this.logger = logger;
     }
 
-    public int possibleActions() { //this is where we capture the user's input, 1, 2, 3, etc.
+    public int possibleActions() throws IOException { //this is where we capture the user's input, 1, 2, 3, etc.
         System.out.println("Select the action you want to perform\n"+
-        "0. Exit the program.\n"+
-        "1. Show the available data sets (subsection 3.1).\n"+
-        "2. Show the total population for all ZIP Codes (subsection 3.2).\n"+
-        "3. Show the total vaccinations per capita for each ZIP Code for the specied date (subsection 3.3).\n"+
-        "4. Show the average market value for properties in a specied ZIP Code (subsection 3.4).\n"+
-        "5. Show the average total livable area for properties in a specied ZIP Code (subsection 3.5).\n"+
-        "6. Show the total market value of properties, per capita, for a specied ZIP Code (subsection 3.6).\n"+
-        "7. Show the results of your custom feature (subsection 3.7).");
+                "0. Exit the program.\n"+
+                "1. Show the available data sets (subsection 3.1).\n"+
+                "2. Show the total population for all ZIP Codes (subsection 3.2).\n"+
+                "3. Show the total vaccinations per capita for each ZIP Code for the specified date (subsection 3.3).\n"+
+                "4. Show the average market value for properties in a specified ZIP Code (subsection 3.4).\n"+
+                "5. Show the average total livable area for properties in a specified ZIP Code (subsection 3.5).\n"+
+                "6. Show the total market value of properties, per capita, for a specified ZIP Code (subsection 3.6).\n"+
+                "7. Show the highest/ lowest market value per capita zip code covid rate (subsection 3.7).");
         int intResponse = 0;
         System.out.flush();
         System.out.println("> ");
         Scanner sc = new Scanner(System.in);
         String response = sc.nextLine();
+        Logger l = Logger.getInstance();
+        l.log(System.currentTimeMillis() +" "+ response+"\n");
         try {
             intResponse = Integer.parseInt(response);
             if (intResponse>7 || intResponse<0) {
@@ -58,24 +65,23 @@ public class UserInterface {
         return intResponse;
     }
 
-    public void display() { //show the output of the 1-7
+    public void display() throws IOException { //show the output of the 1-7
         int intResponse = possibleActions();
         if (intResponse==0) {
-            System.exit(0);
+            return;
         }
         else if (intResponse==1) {
-            ArrayList<String> files = new ArrayList<String>();
-            files.add(processor.getCovidArgument());
-            files.add(processor.getPropertyArgument());
-            files.add(processor.getPopulationArgument());
-            Collections.sort(files);
+            ArrayList<String> dataSets = processor.availableDataSets();
             System.out.println("BEGIN OUTPUT"); System.out.flush();
-            System.out.println(files); System.out.flush();
+            System.out.println(dataSets); System.out.flush();
             System.out.println("END OUTPUT"); System.out.flush();
         } else if (intResponse==2) {
-            //int totalPopulation = processor.getTotalPopulation(); System.out.flush();
+            int totalPopulation = processor.totalPopulation(processor.getPopulationList()); System.out.flush();
+            if (totalPopulation==-1) {
+                System.out.println("No population data provided"); System.out.flush();
+            }
             System.out.println("BEGIN OUTPUT"); System.out.flush();
-            //System.out.println(totalPopulation); System.out.flush();
+            System.out.println(totalPopulation); System.out.flush();
             System.out.println("END OUTPUT"); System.out.flush();
         } else if (intResponse==3) {
             vacPerCapitaReponse();
@@ -91,14 +97,16 @@ public class UserInterface {
 
     }
 
-    public void vacPerCapitaReponse() {
+    public void vacPerCapitaReponse() throws IOException {
         System.out.println("Do you want to review the full or partial vaccination status? - please respond with 'full' or 'partial:");
         System.out.flush();
         System.out.println("> "); System.out.flush();
         Scanner sc = new Scanner(System.in);
         String vaccinationResponse = sc.nextLine();
         vaccinationResponse= vaccinationResponse.toLowerCase();
-        if (!vaccinationResponse.equals("partial") || !vaccinationResponse.equals("full")) {
+        Logger l = Logger.getInstance();
+        l.log(System.currentTimeMillis() +" "+ vaccinationResponse+"\n");
+        if (!vaccinationResponse.equals("partial") && !vaccinationResponse.equals("full")) {
             System.out.println("Please enter a valid response"); System.out.flush();
             vacPerCapitaReponse();
         }
@@ -107,6 +115,7 @@ public class UserInterface {
         System.out.flush();
         System.out.println("> "); System.out.flush();
         String dateResponse = sc.nextLine();
+        l.log(System.currentTimeMillis() +" "+ dateResponse+"\n");
         Pattern p1 = Pattern.compile("\\d\\d\\d-\\d\\d-\\d\\d");
         Matcher m1 = p1.matcher(dateResponse);
         boolean b1 = m1.find();
@@ -114,33 +123,28 @@ public class UserInterface {
             System.out.println("Please enter a valid response"); System.out.flush();
             vacPerCapitaReponse();
         }
-        Map <String, Double> PerCapitaDateMap  = new TreeMap<String, Double>();
-
-        Map <String, Double> PerCapitaMap  = new TreeMap<String, Double>(); //this comes from the processor
-        for (Map.Entry<String, Double> entry : PerCapitaMap.entrySet()) {
-            //if (date = what is given, then add){
-            PerCapitaDateMap.put(entry.getKey(), entry.getValue());
-            //}
-        }
+        ArrayList<String> PerCapitaDate = processor.vacPerCapita(vaccinationResponse, dateResponse, processor.getCovidList(),
+                processor.getPopulationList());
         System.out.println("BEGIN OUTPUT");
-        if (PerCapitaDateMap== null) {
+        if (PerCapitaDate== null) {
             System.out.println("0");
         } else {
-            for (Map.Entry<String, Double> entry : PerCapitaDateMap.entrySet()) {
-                System.out.println(entry.getKey()+" "+entry.getValue()); System.out.flush();
+            for (int i = 0; i < PerCapitaDate.size(); i++) {
+                System.out.print(PerCapitaDate.get(i)+"\n");
             }
         }
         System.out.println("END OUTPUT");
     }
 
-    public void avgMarketValueResponse() {
-        int avgMarketValueResponse=0;
+    public void avgMarketValueResponse() throws IOException {
+        int avgMarketValue=0;
         System.out.println("Please enter a 5 digit zip code?");
         System.out.flush();
         System.out.println("> "); System.out.flush();
         Scanner sc = new Scanner(System.in);
         String zipResponse = sc.nextLine();
-
+        Logger l = Logger.getInstance();
+        l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
         Pattern p1 = Pattern.compile("\\d\\d\\d\\d");
         Matcher m1 = p1.matcher(zipResponse);
         boolean b1 = m1.find();
@@ -148,28 +152,21 @@ public class UserInterface {
             System.out.println("Please enter a valid response"); System.out.flush();
             avgMarketValueResponse();
         }
-        Map <String, Integer> zipAvgMarketValue  = new TreeMap<String, Integer>();
-
-        for (Map.Entry<String, Integer> entry : zipAvgMarketValue.entrySet()) {
-            //if (date = what is given, then add){
-            if (entry.getKey() == zipResponse) {
-                avgMarketValueResponse = entry.getValue();
-            }
-            //}
-        }
+        avgMarketValue = processor.avgMarketValue(zipResponse, processor.getPropertyList());
         System.out.println("BEGIN OUTPUT");
-        System.out.println(avgMarketValueResponse); System.out.flush();
+        System.out.println(avgMarketValue); System.out.flush();
         System.out.println("END OUTPUT");
     }
 
-    public void totalLiveableAreaResponse() {
+    public void totalLiveableAreaResponse() throws IOException {
         int totalLiveableAreaResponse=0;
         System.out.println("Please enter a 5 digit zip code?");
         System.out.flush();
         System.out.println("> "); System.out.flush();
         Scanner sc = new Scanner(System.in);
         String zipResponse = sc.nextLine();
-
+        Logger l = Logger.getInstance();
+        l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
         Pattern p1 = Pattern.compile("\\d\\d\\d\\d");
         Matcher m1 = p1.matcher(zipResponse);
         boolean b1 = m1.find();
@@ -177,27 +174,21 @@ public class UserInterface {
             System.out.println("Please enter a valid response"); System.out.flush();
             totalLiveableAreaResponse();
         }
-        Map <String, Integer> zipTotalLiveableArea  = new TreeMap<String, Integer>();
-
-        for (Map.Entry<String, Integer> entry : zipTotalLiveableArea.entrySet()) {
-            if (entry.getKey() == zipResponse) {
-                totalLiveableAreaResponse = entry.getValue();
-            }
-            //}
-        }
+        totalLiveableAreaResponse = processor.avgLivableArea(zipResponse, processor.getPropertyList());
         System.out.println("BEGIN OUTPUT");
         System.out.println(totalLiveableAreaResponse); System.out.flush();
         System.out.println("END OUTPUT");
     }
 
-    public void totalMarketValueResponse() {
+    public void totalMarketValueResponse() throws IOException {
         int totalMarketValueResponse=0;
         System.out.println("Please enter a 5 digit zip code?");
         System.out.flush();
         System.out.println("> "); System.out.flush();
         Scanner sc = new Scanner(System.in);
         String zipResponse = sc.nextLine();
-
+        Logger l = Logger.getInstance();
+        l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
         Pattern p1 = Pattern.compile("\\d\\d\\d\\d");
         Matcher m1 = p1.matcher(zipResponse);
         boolean b1 = m1.find();
@@ -205,40 +196,56 @@ public class UserInterface {
             System.out.println("Please enter a valid response"); System.out.flush();
             totalLiveableAreaResponse();
         }
-        Map <String, Integer> zipTotalMarketValue  = new TreeMap<String, Integer>();
-
-        for (Map.Entry<String, Integer> entry : zipTotalMarketValue.entrySet()) {
-            if (entry.getKey() == zipResponse) {
-                totalMarketValueResponse = entry.getValue();
-            }
-            //}
-        }
+        totalMarketValueResponse = processor.totalMarketPerCapita(zipResponse, processor.getPropertyList(), processor.getPopulationList());
         System.out.println("BEGIN OUTPUT");
         System.out.println(totalMarketValueResponse); System.out.flush();
         System.out.println("END OUTPUT");
     }
 
-    public void additionalFeature() {
+    public void additionalFeature() throws IOException {
+        String addFeatureResponse = null;
         System.out.println("Do you want to know the highest market value per capita zip code covid rate or highest market value per capita covid rate?- please enter 'highest' or 'lowest'" );
         System.out.flush();
         System.out.println("> "); System.out.flush();
         Scanner sc = new Scanner(System.in);
         String zipResponse = sc.nextLine();
         zipResponse= zipResponse.toLowerCase();
-        if (!zipResponse.equals("highest") || !zipResponse.equals("lowest")) {
+        Logger l = Logger.getInstance();
+        l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
+        if (!zipResponse.equals("highest") && !zipResponse.equals("lowest")) {
             System.out.println("Please enter a valid response"); System.out.flush();
             additionalFeature();
         }
-        double valueResponse = 0.0;
+
+        System.out.println("For which day do you want to review the vaccination status? - please respond with a date in the format of YYYY-MM-DD");
+        System.out.flush();
+        System.out.println("> "); System.out.flush();
+        String dateResponse = sc.nextLine();
+        l.log(System.currentTimeMillis() +" "+ dateResponse+"\n");
+        Pattern p1 = Pattern.compile("\\d\\d\\d-\\d\\d-\\d\\d");
+        Matcher m1 = p1.matcher(dateResponse);
+        boolean b1 = m1.find();
+        if (b1==false) {
+            System.out.println("Please enter a valid response"); System.out.flush();
+            additionalFeature();
+        }
+
+
         if (zipResponse.equals("highest") ) {
-            //valueResponse = processor.getHighestCovidRate()
+            String[] highestResponse =  processor.extremesCovidRate(processor.getPopulationList(),processor.getCovidList(),processor.getPropertyList(),dateResponse);
+            highestResponse =  processor.extremesCovidRate(processor.getPopulationList(),processor.getCovidList(),processor.getPropertyList(),dateResponse);
+            addFeatureResponse = highestResponse[0];
         } else {
-            //valueResponse = processor.getLowestCovidRate()
+            String[] lowestResponse =  processor.extremesCovidRate(processor.getPopulationList(),processor.getCovidList(),processor.getPropertyList(),dateResponse);
+            addFeatureResponse = lowestResponse[1];
+        }
+        if (addFeatureResponse==null) {
+            addFeatureResponse="0";
         }
         System.out.println("BEGIN OUTPUT");
-        System.out.println(valueResponse); System.out.flush();
+        System.out.println(addFeatureResponse); System.out.flush();
         System.out.println("END OUTPUT");
     }
 
-
 }
+

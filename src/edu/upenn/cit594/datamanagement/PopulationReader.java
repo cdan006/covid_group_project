@@ -1,5 +1,6 @@
 package edu.upenn.cit594.datamanagement;
 
+import edu.upenn.cit594.logging.Logger;
 import edu.upenn.cit594.util.Population;
 
 import java.io.BufferedReader;
@@ -10,8 +11,10 @@ import java.util.Arrays;
 
 public class PopulationReader {
     protected String filename;
-    public PopulationReader(String name) {
+    protected String logFile;
+    public PopulationReader(String name, Logger LogName) {
         filename = name;
+        this.logFile =LogName.getLogFile();
     }
 
     public ArrayList<Population> getPopulationList() throws IOException {
@@ -25,18 +28,23 @@ public class PopulationReader {
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
             int i = 0;
+            Logger l = Logger.getInstance();
+            l.setLogFile(logFile);
+            l.log(System.currentTimeMillis() + " "+filename+"\n");
+
+            //ITERATE THROUGH THE LINES OF THE FILE USING TRY CATCH TO IGNORE ANY VALUES THAT GIVE IT AN ERROR
             while ((line = bufferedReader.readLine()) != null) {
                 String[] lineSplit = line.split(",");
                 if (i !=0) {
-                    try {zip = lineSplit[zipIndex];} catch (Exception e) {zip = null;}
+                    try {zip = lineSplit[zipIndex].substring(1,lineSplit[zipIndex].length()-1);} catch (Exception e) {zip = null;}
                     try { totalPopulation = lineSplit[totalPopulationIndex];} catch (Exception e) {totalPopulation = "0";}
                     Population population = new Population(zip, totalPopulation);
                     populationList.add(population);
                 } else {
-                    int l = 0;
-                    while (l<lineSplit.length) {
-                        lineSplit[l] = lineSplit[l].replace("\"","");
-                        l++;
+                    int j = 0;
+                    while (j<lineSplit.length) {
+                        lineSplit[j] = lineSplit[j].replace("\"","");
+                        j++;
                     }
                     zipIndex = Arrays.asList(lineSplit).indexOf("zip_code");
                     totalPopulationIndex = Arrays.asList(lineSplit).indexOf("population");

@@ -1,5 +1,6 @@
 package edu.upenn.cit594.datamanagement;
 
+import edu.upenn.cit594.logging.Logger;
 import edu.upenn.cit594.util.Population;
 import edu.upenn.cit594.util.Property;
 
@@ -13,8 +14,10 @@ import java.util.Arrays;
 
 public class PropertyReader {
     protected String filename;
-    public PropertyReader(String name) {
+    protected String logFile;
+    public PropertyReader(String name, Logger LogName) {
         filename = name;
+        this.logFile =LogName.getLogFile();
     }
 
     public ArrayList<Property> getPropertyList() throws IOException {
@@ -27,15 +30,15 @@ public class PropertyReader {
         int marketValueIndex = -1;
         int totalLiveableAreaIndex = -1;
         int zipIndex = -1;
-
+        //TRY CATCH TO IGNORE ANY VALUES THAT GIVE IT AN ERROR
         for (int r = 0; r < propertyArray.size(); r++) {
             if (r != 0) {
                 try {marketValue = propertyArray.get(r)[marketValueIndex];} catch (Exception e) {marketValue = null;}
                 try { totalLiveableArea = propertyArray.get(r)[totalLiveableAreaIndex];} catch (Exception e) {totalLiveableArea = null;}
-                try { zip = propertyArray.get(r)[zipIndex].substring(0,5);} catch (Exception e) {zip = null;}
+                try { zip = propertyArray.get(r)[zipIndex];} catch (Exception e) {zip = null;}
                 Property property = new Property (marketValue, totalLiveableArea, zip);
                 propertyList.add(property);
-            } else {
+            } else { //DEFINE THE INDEX OF THE COLUMNS WE NEED TO INCLUDE IN OUR PROPERTY CLASS
                 for (c = 0; c < propertyArray.get(r).length; c++) {
                     String print = propertyArray.get(r)[c];
                     if (propertyArray.get(r)[c] != null) {
@@ -62,7 +65,7 @@ public class PropertyReader {
 
 
 
-
+    //RETURN AN ARRAY LIST WITH THE PROPERTY DATA FROM THE PROVIDED CSV FILE
     public ArrayList<String[]> getPropertyArray() throws IOException {
         File file = new File(filename);
         String state = null;
@@ -76,24 +79,30 @@ public class PropertyReader {
         int content=0;
         int priorContent = 0;
         try (FileReader fr = new FileReader(file)) {
+            Logger l = Logger.getInstance();
+            l.setLogFile(logFile);
+            l.log(System.currentTimeMillis() + " "+filename+"\n");
+            //READ THE CONTENTS OF THE FILE BYTE BY BYTE AND CONVERT IT TO CHAR
             while ((content = fr.read()) != -1) {
                 current = (char) content;
+                //IF THE PRIOR VALUE IS NULL, SET THE STATE AS NULL
                 if (prior=='\0') {
                     state= null;
-                } else if (state ==null) {
+
+                } else if (state ==null) { //IF THE PRIOR STATE IS NULL, AND THE PRIOR CONTENT IS A ,: SET STATE TO NEW FIELD AND MOVE 1 COLUMN TO THE RIGHT
                     if (priorContent ==44) {
                         c++;
                         state = "new field";
                     }
-                    else if (priorContent ==34) {
+                    else if (priorContent ==34) { //IF THE PRIOR STATE IS NULL, AND THE PRIOR CONTENT IS A ": SET STATE TO OPEN QUOTE
                         state ="open quote";
                     }
-                    else if (priorContent ==10) {
+                    else if (priorContent ==10) { //IF THE PRIOR STATE IS NULL, AND THE PRIOR CONTENT IS A NEW LINE: SET STATE TO NEW FIELD AND GO ONE ROW LOWER
                         elementArray = null;
                         propertyArray.add(elementArray[r]);
                         state = "new field";
                         r++;
-                    } else {
+                    } else { //IF THE PRIOR STATE IS NULL, CHANGE THE STATE TO ADD AND UPDATE THE ELEMENT STRING
                         String s = String.valueOf(prior);
                         if (element == null) {
                             element = s;
@@ -102,18 +111,18 @@ public class PropertyReader {
                         }
                         state = "add";
                     }
-                } else if (state.equals("new field")) {
+                } else if (state.equals("new field")) { //IF STATE IS NEW FIELD AND THE PRIOR VALUE IS A ,: MOVE 1 COLUMN TO THE RIGHT AND UPDATE STATE TO NEW FIELD
                     if (priorContent == 44) {
                         c++;
                         state = "new field";
-                    } else if (priorContent == 34) {
+                    } else if (priorContent == 34) { //IF STATE IS NEW FIELD AND THE PRIOR VALUE IS A ": UPDATE STATE TO OPEN QUOTE
                         state = "open quote";
-                    } else if (priorContent == 10) {
+                    } else if (priorContent == 10) { //IF STATE IS NEW FIELD AND THE PRIOR VALUE IS A NEW LINE: MOVE 1 ROW LOWER AND UPDATE STATE TO NEW FIELD
                         propertyArray.add(elementArray[r]);
                         c = 0;
                         state = "new field";
                         r++;
-                    } else {
+                    } else { //IF STATE IS NEW FIELD, CHANGE THE STATE TO ADD AND UPDATE THE ELEMENT STRING
                         String s = String.valueOf(prior);
                         if (element == null) {
                             element = s;
@@ -122,7 +131,7 @@ public class PropertyReader {
                         }
                         state = "add";
                     }
-                } else if (state.equals("new field/ open quote")) {
+                } else if (state.equals("new field/ open quote")) {//IF STATE IS NEW FIELD/OPEN QUOTE AND THE PRIOR VALUE IS A ,: UPDATE THE STATE TO OPEN QUOTE AND ADD TO THE ELEMENT STRING
                     if (priorContent ==44) {
                         String s = String.valueOf(prior);
                         if (element == null) {
@@ -131,7 +140,7 @@ public class PropertyReader {
                             element = element + s;
                         }
                         state = "open quote";
-                    } else if (priorContent ==34 && content == 34) {
+                    } else if (priorContent ==34 && content == 34) { //IF STATE IS NEW FIELD/OPEN QUOTE AND THE PRIOR VALUE/CURRENT IS A ": UPDATE THE STATE TO OPEN QUOTE AND ADD TO THE ELEMENT STRING
                         String s = String.valueOf(prior);
                         if (element == null) {
                             element = s;
@@ -141,9 +150,9 @@ public class PropertyReader {
                         //prior = current;
                         //priorContent = content;
                         state = "open quote";
-                    } else if (priorContent ==34 && content != 34) {
+                    } else if (priorContent ==34 && content != 34) { //IF STATE IS NEW FIELD/OPEN QUOTE AND THE PRIOR VALUE IS A ": UPDATE THE STATE TO CLOSED QUOTE
                         state = "close quote";
-                    }  else if (priorContent ==10) {
+                    }  else if (priorContent ==10) { //IF STATE IS NEW FIELD/OPEN QUOTE AND THE PRIOR VALUE IS A NEW LINE: ADD THE ELEMENT TO THE STRING AND CHANGE THE STATE TO OPEN QUOTE
                         String s = String.valueOf(prior);
                         if (element == null) {
                             element = s;
@@ -151,7 +160,7 @@ public class PropertyReader {
                             element = element + s;
                         }
                         state = "open quote";
-                    } else {
+                    } else {  //IF STATE IS OPEN QUOTE, UPDATE THE ELEMENT STRING
                         String s = String.valueOf(prior);
                         if (element == null) {
                             element = s;
@@ -161,7 +170,7 @@ public class PropertyReader {
                         state = "open quote";
                     }
 
-                } else if (state.equals("open quote")) {
+                } else if (state.equals("open quote")) { // IF THE STATE IS OPEN QUOTE AND THE PRIOR VALUE IS A ,: ADD S TO ELEMENT
                     if (priorContent ==44) {
                         String s = String.valueOf(prior);
                         if (element == null) {
@@ -170,7 +179,7 @@ public class PropertyReader {
                             element = element + s;
                         }
                         state = "open quote";
-                    } else if (priorContent ==34 && (content == 34)) {//|| content == 10 || content == 44
+                    } else if (priorContent ==34 && (content == 34)) {// IF THE STATE IS OPEN QUOTE AND THE PRIOR/CURRENT VALUE IS A ": ADD S TO ELEMENT AND SKIP TO THE NEXT CHAR VALUE
                         String s = String.valueOf(prior);
                         if (element == null) {
                             element = s;
@@ -192,7 +201,7 @@ public class PropertyReader {
                             element = element + s;
                         }
                         state = "open quote";
-                    } else {
+                    } else { //IF STATE IS OPEN QUOTE, UPDATE THE ELEMENT STRING
                         String s = String.valueOf(prior);
                         if (element == null) {
                             element = s;
@@ -203,19 +212,19 @@ public class PropertyReader {
                     }
 
 
-                } else if (state.equals("close quote")) {
-                   if (priorContent == 44) {
-                       elementArray[r][c] = element;
-                       element = null;
-                       state = "new field";
-                       c++;
-                   } else if (priorContent == 10) {
-                       elementArray[r][c] = element;
-                       propertyArray.add(elementArray[r]);
-                       state = "new field";
-                       c = 0;
-                       r++;
-                   }
+                } else if (state.equals("close quote")) { // IF THE STATE IS CLOSE QUOTE, UPDATE THE STATE AND ARRAY LIST AS APPROPRIATE
+                    if (priorContent == 44) {
+                        elementArray[r][c] = element;
+                        element = null;
+                        state = "new field";
+                        c++;
+                    } else if (priorContent == 10) {
+                        elementArray[r][c] = element;
+                        propertyArray.add(elementArray[r]);
+                        state = "new field";
+                        c = 0;
+                        r++;
+                    }
                 } else if (state.equals("add")) {
                     if (priorContent == 44) {
                         elementArray[r][c] = element;
