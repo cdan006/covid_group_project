@@ -62,21 +62,55 @@ public class ArgumentReader {
             }
         }
         //CHECK TO MAKE SURE THE SAME FILES WERE NOT PROVIDED TWICE
-        if ((covidFile.equals(propertiesFile) && covidFile!=null && propertiesFile!=null)||
-                (covidFile.equals(populationFile) && covidFile!=null && populationFile!=null)||
-                (covidFile.equals(logFile) && covidFile!=null && logFile!=null)||
-                (propertiesFile.equals(populationFile) && propertiesFile!=null && populationFile!=null)||
-                (propertiesFile.equals(logFile) && propertiesFile!=null && logFile!=null)||
-                (populationFile.equals(logFile) && populationFile!=null && logFile!=null)||
-                args.length>4 || (!covidFile.toLowerCase().endsWith(".json") && !covidFile.toLowerCase().endsWith(".csv") && covidFile!=null)
-        ) {
+        if(covidFile!=null && propertiesFile!=null) {
+                    if (covidFile.equals(propertiesFile)){
+                return 0;
+            }
+        }
+        if(covidFile!=null && populationFile!=null) {
+            if (covidFile.equals(populationFile)){
+                return 0;
+            }
+        }
+
+        if(covidFile!=null && logFile!=null) {
+            if (covidFile.equals(logFile)){
+                return 0;
+            }
+        }
+
+        if(propertiesFile!=null && populationFile!=null) {
+            if (propertiesFile.equals(populationFile)){
+                return 0;
+            }
+        }
+        if(propertiesFile!=null && logFile!=null) {
+            if (propertiesFile.equals(logFile)){
+                return 0;
+            }
+        }
+        if(populationFile!=null && logFile!=null) {
+            if (populationFile.equals(logFile)){
+                return 0;
+            }
+        }
+        if (args.length>4) {
             return 0;
+        }
+        if (covidFile!=null) {
+            if (!covidFile.toLowerCase().endsWith(".json") && !covidFile.toLowerCase().endsWith(".csv")) {
+                return 0;
+            }
+        }
+        if (logFile==null) {
+            System.err.println("No Logger File");
         } else {
             Logger l = Logger.getInstance();
             l.setLogFile(logFile);
             l.log(System.currentTimeMillis() +" "+ covidArgument+" "+propertiesArgument+ " "+populationArgument+"\n");
-            return 1;
         }
+        return 1;
+
     }
 
     //METHOD TO SELECT THE SPECIFIC FILE AND THE ASSOCIATED ARGUMENT

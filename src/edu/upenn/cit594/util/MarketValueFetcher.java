@@ -13,7 +13,7 @@ public class MarketValueFetcher extends RealEstateAverageableAttributeFetcher {
             output = Integer.parseInt(p.getMarketValue());
             return output;
         } catch (NumberFormatException e) {
-            //do nothing???
+            output = 0;
         }
 
         return output;

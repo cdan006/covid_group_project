@@ -13,7 +13,7 @@ public class AverageLivableAreaFetcher extends RealEstateAverageableAttributeFet
             output = Integer.parseInt(p.getTotalLiveableArea());
             return output;
         } catch (NumberFormatException e) {
-            //do nothing???
+            output = 0;
         }
 
         return output;

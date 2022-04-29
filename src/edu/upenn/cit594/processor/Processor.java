@@ -201,6 +201,8 @@ public class Processor {
         int denominatorCount = 0;
 
         for (Property p : propertyList) {
+        //int attribute = a.fetchAttribute(p);
+        //String zipCheck = p.getZip();
             if (zip.equals(p.getZip()) && a.fetchAttribute(p)>0) {
                 denominatorCount++;
                 numeratorTotal = numeratorTotal + a.fetchAttribute(p);

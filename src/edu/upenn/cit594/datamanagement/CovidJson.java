@@ -31,9 +31,13 @@ public class CovidJson implements CovidReader {
             String filePath = filename;
             JSONArray jArray = (JSONArray) (new JSONParser()).parse(new FileReader(filePath));
             //ITERATE THROUGH THE FILE USING TRY CATCH TO IGNORE ANY VALUES THAT GIVE IT AN ERROR
-            Logger l = Logger.getInstance();
-            l.setLogFile(logFile);
-            l.log(System.currentTimeMillis() +" "+ filename+"\n");
+            if (logFile==null) {
+                System.err.println("No Logger File");
+            } else {
+                Logger l = Logger.getInstance();
+                l.setLogFile(logFile);
+                l.log(System.currentTimeMillis() + " " + filename + "\n");
+            }
             for (int i=0; i <jArray.size(); ++i){
                 JSONObject obj = (JSONObject)jArray.get(i);
                 try {zip = obj.get("zip_code").toString();} catch (Exception e) {zip = null;} ;

@@ -30,6 +30,7 @@ public class UserInterface {
     public UserInterface (Processor processor, Logger logger) throws IOException {
         this.processor = processor;
         this.logger = logger;
+        this.logFile = logger.getLogFile();;
     }
 
     public int possibleActions(Scanner sc) throws IOException { //this is where we capture the user's input, 1, 2, 3, etc.
@@ -46,8 +47,12 @@ public class UserInterface {
         System.out.flush();
         System.out.println("> ");
         String response = sc.nextLine();
-        Logger l = Logger.getInstance();
-        l.log(System.currentTimeMillis() +" "+ response+"\n");
+        if (logFile==null) {
+            System.err.println("No Logger File");
+        } else {
+            Logger l = Logger.getInstance();
+            l.log(System.currentTimeMillis() +" "+ response+"\n");
+        }
         try {
             intResponse = Integer.parseInt(response);
             if (intResponse>7 || intResponse<0) {
@@ -105,18 +110,18 @@ public class UserInterface {
         //Scanner sc = new Scanner(System.in);
         String vaccinationResponse = sc.nextLine();
         vaccinationResponse= vaccinationResponse.toLowerCase();
-        Logger l = Logger.getInstance();
-        l.log(System.currentTimeMillis() +" "+ vaccinationResponse+"\n");
-        if (!vaccinationResponse.equals("partial") && !vaccinationResponse.equals("full")) {
-            System.out.println("Please enter a valid response"); System.out.flush();
-            vacPerCapitaReponse(sc);
-        }
 
         System.out.println("For which day do you want to review the vaccination status? - please respond with a date in the format of YYYY-MM-DD");
         System.out.flush();
         System.out.println("> "); System.out.flush();
         String dateResponse = sc.nextLine();
-        l.log(System.currentTimeMillis() +" "+ dateResponse+"\n");
+        if (logFile==null) {
+            System.err.println("No Logger File");
+        } else {
+            Logger l = Logger.getInstance();
+            l.log(System.currentTimeMillis() + " " + vaccinationResponse + "\n");
+            l.log(System.currentTimeMillis() + " " + dateResponse + "\n");
+        }
         Pattern p1 = Pattern.compile("\\d\\d\\d-\\d\\d-\\d\\d");
         Matcher m1 = p1.matcher(dateResponse);
         boolean b1 = m1.find();
@@ -143,8 +148,12 @@ public class UserInterface {
         System.out.flush();
         System.out.println("> "); System.out.flush();
         String zipResponse = sc.nextLine();
-        Logger l = Logger.getInstance();
-        l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
+        if (logFile==null) {
+            System.err.println("No Logger File");
+        } else {
+            Logger l = Logger.getInstance();
+            l.log(System.currentTimeMillis() + " " + zipResponse + "\n");
+        }
         Pattern p1 = Pattern.compile("\\d\\d\\d\\d");
         Matcher m1 = p1.matcher(zipResponse);
         boolean b1 = m1.find();
@@ -164,8 +173,12 @@ public class UserInterface {
         System.out.flush();
         System.out.println("> "); System.out.flush();
         String zipResponse = sc.nextLine();
-        Logger l = Logger.getInstance();
-        l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
+        if (logFile==null) {
+            System.err.println("No Logger File");
+        } else {
+            Logger l = Logger.getInstance();
+            l.log(System.currentTimeMillis() + " " + zipResponse + "\n");
+        }
         Pattern p1 = Pattern.compile("\\d\\d\\d\\d");
         Matcher m1 = p1.matcher(zipResponse);
         boolean b1 = m1.find();
@@ -185,8 +198,12 @@ public class UserInterface {
         System.out.flush();
         System.out.println("> "); System.out.flush();
         String zipResponse = sc.nextLine();
-        Logger l = Logger.getInstance();
-        l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
+        if (logFile==null) {
+            System.err.println("No Logger File");
+        } else {
+            Logger l = Logger.getInstance();
+            l.log(System.currentTimeMillis() + " " + zipResponse + "\n");
+        }
         Pattern p1 = Pattern.compile("\\d\\d\\d\\d");
         Matcher m1 = p1.matcher(zipResponse);
         boolean b1 = m1.find();
@@ -207,8 +224,7 @@ public class UserInterface {
         System.out.println("> "); System.out.flush();
         String zipResponse = sc.nextLine();
         zipResponse= zipResponse.toLowerCase();
-        Logger l = Logger.getInstance();
-        l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
+
         if (!zipResponse.equals("highest") && !zipResponse.equals("lowest")) {
             System.out.println("Please enter a valid response"); System.out.flush();
             additionalFeature(sc);
@@ -218,7 +234,13 @@ public class UserInterface {
         System.out.flush();
         System.out.println("> "); System.out.flush();
         String dateResponse = sc.nextLine();
-        l.log(System.currentTimeMillis() +" "+ dateResponse+"\n");
+        if (logFile==null) {
+            System.err.println("No Logger File");
+        } else {
+            Logger l = Logger.getInstance();
+            l.log(System.currentTimeMillis() + " " + zipResponse + "\n");
+            l.log(System.currentTimeMillis() +" "+ dateResponse+"\n");
+        }
         Pattern p1 = Pattern.compile("\\d\\d\\d-\\d\\d-\\d\\d");
         Matcher m1 = p1.matcher(dateResponse);
         boolean b1 = m1.find();

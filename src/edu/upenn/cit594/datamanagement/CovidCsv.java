@@ -30,9 +30,13 @@ public class CovidCsv implements CovidReader {
             //READ THE FILE
             FileReader fileReader = new FileReader(filename);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
-            Logger l = Logger.getInstance();
-            l.setLogFile(logFile);
-            l.log(System.currentTimeMillis() + " "+filename+"\n");
+            if (logFile==null) {
+                System.err.println("No Logger File");
+            } else {
+                Logger l = Logger.getInstance();
+                l.setLogFile(logFile);
+                l.log(System.currentTimeMillis() + " " + filename + "\n");
+            }
             String line;
             int i = 0;
             int zipIndex = 0;
