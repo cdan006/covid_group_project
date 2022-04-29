@@ -20,7 +20,7 @@ public class ArgumentReader {
 
     //CALL TO DETERMINE IF THE APPROPRIATE ARGUMENTS ARE PROVIDED
     public int argumenthandling (String [] args) throws IOException {
-        //CHECK THE NUMBER OF ARGUMENTS AND IF THE FILES ARE IN THE RIGHT FORMAT
+        //CHECK THE NUMBER OF ARGUMENTS, IF THE FILES ARE IN THE RIGHT FORMAT
         if (args.length>0) {
             if (fileRegex(args[0]) == false ) {
                 return 0;
