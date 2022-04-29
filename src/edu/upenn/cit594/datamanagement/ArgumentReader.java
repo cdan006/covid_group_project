@@ -22,28 +22,28 @@ public class ArgumentReader {
     public int argumenthandling (String [] args) throws IOException {
         //CHECK THE NUMBER OF ARGUMENTS AND IF THE FILES ARE IN THE RIGHT FORMAT
         if (args.length>0) {
-            fileSelection(args[0]);
             if (fileRegex(args[0]) == false ) {
                 return 0;
             }
+            fileSelection(args[0]);
         }
         if (args.length>1) {
-            fileSelection(args[1]);
             if (fileRegex(args[1]) == false) {
                 return 0;
             }
+            fileSelection(args[1]);
         }
         if (args.length>2) {
-            fileSelection(args[2]);
             if (fileRegex(args[2]) == false) {
                 return 0;
             }
+            fileSelection(args[2]);
         }
         if (args.length>3) {
-            fileSelection(args[3]);
             if (fileRegex(args[3]) == false) {
                 return 0;
             }
+            fileSelection(args[3]);
         }
         //CHECK THAT EACH FILE EXISTS AND THAT IT CAN BE OPENED
         if (this.covidFile !=null) {
@@ -62,12 +62,12 @@ public class ArgumentReader {
             }
         }
         //CHECK TO MAKE SURE THE SAME FILES WERE NOT PROVIDED TWICE
-        if ((covidFile ==  propertiesFile && covidFile!=null && propertiesFile!=null)||
-                (covidFile == populationFile && covidFile!=null && populationFile!=null)||
-                (covidFile == logFile && covidFile!=null && logFile!=null)||
-                (propertiesFile == populationFile && propertiesFile!=null && populationFile!=null)||
-                (propertiesFile == logFile && propertiesFile!=null && logFile!=null)||
-                (populationFile == logFile && populationFile!=null && logFile!=null)||
+        if ((covidFile.equals(propertiesFile) && covidFile!=null && propertiesFile!=null)||
+                (covidFile.equals(populationFile) && covidFile!=null && populationFile!=null)||
+                (covidFile.equals(logFile) && covidFile!=null && logFile!=null)||
+                (propertiesFile.equals(populationFile) && propertiesFile!=null && populationFile!=null)||
+                (propertiesFile.equals(logFile) && propertiesFile!=null && logFile!=null)||
+                (populationFile.equals(logFile) && populationFile!=null && logFile!=null)||
                 args.length>4 || (!covidFile.toLowerCase().endsWith(".json") && !covidFile.toLowerCase().endsWith(".csv") && covidFile!=null)
         ) {
             return 0;

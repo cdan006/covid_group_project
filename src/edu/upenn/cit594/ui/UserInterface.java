@@ -32,7 +32,7 @@ public class UserInterface {
         this.logger = logger;
     }
 
-    public int possibleActions() throws IOException { //this is where we capture the user's input, 1, 2, 3, etc.
+    public int possibleActions(Scanner sc) throws IOException { //this is where we capture the user's input, 1, 2, 3, etc.
         System.out.println("Select the action you want to perform\n"+
                 "0. Exit the program.\n"+
                 "1. Show the available data sets (subsection 3.1).\n"+
@@ -45,7 +45,6 @@ public class UserInterface {
         int intResponse = 0;
         System.out.flush();
         System.out.println("> ");
-        Scanner sc = new Scanner(System.in);
         String response = sc.nextLine();
         Logger l = Logger.getInstance();
         l.log(System.currentTimeMillis() +" "+ response+"\n");
@@ -54,19 +53,20 @@ public class UserInterface {
             if (intResponse>7 || intResponse<0) {
                 System.out.flush();
                 System.out.println("Please enter a valid integer (0-7) response\n");
-                possibleActions();
+                possibleActions(sc);
             }
 
         } catch (Exception e) {
             System.out.flush();
             System.out.println("Please enter a valid integer (0-7) response\n");
-            possibleActions();
+            possibleActions(sc);
         }
         return intResponse;
     }
 
     public void display() throws IOException { //show the output of the 1-7
-        int intResponse = possibleActions();
+        Scanner sc = new Scanner(System.in);
+        int intResponse = possibleActions(sc);
         if (intResponse==0) {
             return;
         }
@@ -84,31 +84,32 @@ public class UserInterface {
             System.out.println(totalPopulation); System.out.flush();
             System.out.println("END OUTPUT"); System.out.flush();
         } else if (intResponse==3) {
-            vacPerCapitaReponse();
+            vacPerCapitaReponse(sc);
         } else if (intResponse==4) {
-            avgMarketValueResponse();
+            avgMarketValueResponse(sc);
         } else if (intResponse==5) {
-            totalLiveableAreaResponse();
+            totalLiveableAreaResponse(sc);
         } else if (intResponse==6) {
-            totalMarketValueResponse();
+            totalMarketValueResponse(sc);
         } else {
-            additionalFeature();
+            additionalFeature(sc);
         }
+        sc.close();
 
     }
 
-    public void vacPerCapitaReponse() throws IOException {
+    public void vacPerCapitaReponse(Scanner sc) throws IOException {
         System.out.println("Do you want to review the full or partial vaccination status? - please respond with 'full' or 'partial:");
         System.out.flush();
         System.out.println("> "); System.out.flush();
-        Scanner sc = new Scanner(System.in);
+        //Scanner sc = new Scanner(System.in);
         String vaccinationResponse = sc.nextLine();
         vaccinationResponse= vaccinationResponse.toLowerCase();
         Logger l = Logger.getInstance();
         l.log(System.currentTimeMillis() +" "+ vaccinationResponse+"\n");
         if (!vaccinationResponse.equals("partial") && !vaccinationResponse.equals("full")) {
             System.out.println("Please enter a valid response"); System.out.flush();
-            vacPerCapitaReponse();
+            vacPerCapitaReponse(sc);
         }
 
         System.out.println("For which day do you want to review the vaccination status? - please respond with a date in the format of YYYY-MM-DD");
@@ -121,7 +122,7 @@ public class UserInterface {
         boolean b1 = m1.find();
         if (b1==false) {
             System.out.println("Please enter a valid response"); System.out.flush();
-            vacPerCapitaReponse();
+            vacPerCapitaReponse(sc);
         }
         ArrayList<String> PerCapitaDate = processor.vacPerCapita(vaccinationResponse, dateResponse, processor.getCovidList(),
                 processor.getPopulationList());
@@ -136,12 +137,11 @@ public class UserInterface {
         System.out.println("END OUTPUT");
     }
 
-    public void avgMarketValueResponse() throws IOException {
+    public void avgMarketValueResponse(Scanner sc) throws IOException {
         int avgMarketValue=0;
         System.out.println("Please enter a 5 digit zip code?");
         System.out.flush();
         System.out.println("> "); System.out.flush();
-        Scanner sc = new Scanner(System.in);
         String zipResponse = sc.nextLine();
         Logger l = Logger.getInstance();
         l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
@@ -150,7 +150,7 @@ public class UserInterface {
         boolean b1 = m1.find();
         if (b1==false) {
             System.out.println("Please enter a valid response"); System.out.flush();
-            avgMarketValueResponse();
+            avgMarketValueResponse(sc);
         }
         avgMarketValue = processor.avgMarketValue(zipResponse, processor.getPropertyList());
         System.out.println("BEGIN OUTPUT");
@@ -158,12 +158,11 @@ public class UserInterface {
         System.out.println("END OUTPUT");
     }
 
-    public void totalLiveableAreaResponse() throws IOException {
+    public void totalLiveableAreaResponse(Scanner sc) throws IOException {
         int totalLiveableAreaResponse=0;
         System.out.println("Please enter a 5 digit zip code?");
         System.out.flush();
         System.out.println("> "); System.out.flush();
-        Scanner sc = new Scanner(System.in);
         String zipResponse = sc.nextLine();
         Logger l = Logger.getInstance();
         l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
@@ -172,7 +171,7 @@ public class UserInterface {
         boolean b1 = m1.find();
         if (b1==false) {
             System.out.println("Please enter a valid response"); System.out.flush();
-            totalLiveableAreaResponse();
+            totalLiveableAreaResponse(sc);
         }
         totalLiveableAreaResponse = processor.avgLivableArea(zipResponse, processor.getPropertyList());
         System.out.println("BEGIN OUTPUT");
@@ -180,12 +179,11 @@ public class UserInterface {
         System.out.println("END OUTPUT");
     }
 
-    public void totalMarketValueResponse() throws IOException {
+    public void totalMarketValueResponse(Scanner sc) throws IOException {
         int totalMarketValueResponse=0;
         System.out.println("Please enter a 5 digit zip code?");
         System.out.flush();
         System.out.println("> "); System.out.flush();
-        Scanner sc = new Scanner(System.in);
         String zipResponse = sc.nextLine();
         Logger l = Logger.getInstance();
         l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
@@ -194,7 +192,7 @@ public class UserInterface {
         boolean b1 = m1.find();
         if (b1==false) {
             System.out.println("Please enter a valid response"); System.out.flush();
-            totalLiveableAreaResponse();
+            totalLiveableAreaResponse(sc);
         }
         totalMarketValueResponse = processor.totalMarketPerCapita(zipResponse, processor.getPropertyList(), processor.getPopulationList());
         System.out.println("BEGIN OUTPUT");
@@ -202,19 +200,18 @@ public class UserInterface {
         System.out.println("END OUTPUT");
     }
 
-    public void additionalFeature() throws IOException {
+    public void additionalFeature(Scanner sc) throws IOException {
         String addFeatureResponse = null;
         System.out.println("Do you want to know the highest market value per capita zip code covid rate or highest market value per capita covid rate?- please enter 'highest' or 'lowest'" );
         System.out.flush();
         System.out.println("> "); System.out.flush();
-        Scanner sc = new Scanner(System.in);
         String zipResponse = sc.nextLine();
         zipResponse= zipResponse.toLowerCase();
         Logger l = Logger.getInstance();
         l.log(System.currentTimeMillis() +" "+ zipResponse+"\n");
         if (!zipResponse.equals("highest") && !zipResponse.equals("lowest")) {
             System.out.println("Please enter a valid response"); System.out.flush();
-            additionalFeature();
+            additionalFeature(sc);
         }
 
         System.out.println("For which day do you want to review the vaccination status? - please respond with a date in the format of YYYY-MM-DD");
@@ -227,7 +224,7 @@ public class UserInterface {
         boolean b1 = m1.find();
         if (b1==false) {
             System.out.println("Please enter a valid response"); System.out.flush();
-            additionalFeature();
+            additionalFeature(sc);
         }
 
 
