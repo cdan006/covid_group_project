@@ -42,12 +42,10 @@ public class Main {
         PropertyReader propertyReader = new PropertyReader(argumentReader.getPropertiesFile(), loggingFile);
         //ArrayList<Property> propertyList = propertyReader.getPropertyList();
 
-
-
         Processor processor = new Processor(covidReader,populationReader,propertyReader, loggingFile, argumentReader);
 
         UserInterface ui = new UserInterface(processor, loggingFile);
-        ui.display();
+        ui.run();
     }
 
 }

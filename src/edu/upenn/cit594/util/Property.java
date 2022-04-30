@@ -8,9 +8,22 @@ public class Property {
     String zip;
 
     public Property (String marketValue, String totalLiveableArea, String zip) {
-        this.marketValue = marketValue;
-        this.totalLiveableArea = totalLiveableArea;
-        this.zip = zip;
+        if (marketValue== null) {
+            this.marketValue = marketValue;
+        } else {
+            this.marketValue = marketValue;
+        }
+        if (totalLiveableArea== null) {
+            this.totalLiveableArea = totalLiveableArea;
+        } else {
+            this.totalLiveableArea = totalLiveableArea;
+        }
+        if (zip== null) {
+            this.zip = zip;
+        } else {
+            this.zip = zip.replaceAll(" ","");
+        }
+
 
     }
 

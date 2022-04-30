@@ -9,6 +9,7 @@ import edu.upenn.cit594.processor.Processor;
 import edu.upenn.cit594.util.Covid;
 import edu.upenn.cit594.util.Population;
 import edu.upenn.cit594.util.Property;
+import groovy.io.LineColumnReader;
 
 import java.sql.Array;
 import java.util.*;
@@ -31,6 +32,16 @@ public class UserInterface {
         this.processor = processor;
         this.logger = logger;
         this.logFile = logger.getLogFile();;
+    }
+
+
+    public void run() throws IOException {
+        Scanner sc = new Scanner(System.in);
+        int intResponse = display(sc);
+        while (intResponse !=0) {
+            intResponse = display(sc);
+        }
+        sc.close();
     }
 
     public int possibleActions(Scanner sc) throws IOException { //this is where we capture the user's input, 1, 2, 3, etc.
@@ -58,7 +69,7 @@ public class UserInterface {
             if (intResponse>7 || intResponse<0) {
                 System.out.flush();
                 System.out.println("Please enter a valid integer (0-7) response\n");
-                possibleActions(sc);
+                display(sc);
             }
 
         } catch (Exception e) {
@@ -69,11 +80,10 @@ public class UserInterface {
         return intResponse;
     }
 
-    public void display() throws IOException { //show the output of the 1-7
-        Scanner sc = new Scanner(System.in);
+    public int display(Scanner sc) throws IOException { //show the output of the 1-7
         int intResponse = possibleActions(sc);
         if (intResponse==0) {
-            return;
+            return intResponse;
         }
         else if (intResponse==1) {
             ArrayList<String> dataSets = processor.availableDataSets();
@@ -81,6 +91,9 @@ public class UserInterface {
             System.out.println(dataSets); System.out.flush();
             System.out.println("END OUTPUT"); System.out.flush();
         } else if (intResponse==2) {
+            if (processor.getPopulationFileName() == null) {
+                System.out.println("The population file is not available"); System.out.flush();
+            }
             int totalPopulation = processor.totalPopulation(processor.getPopulationList()); System.out.flush();
             if (totalPopulation==-1) {
                 System.out.println("No population data provided"); System.out.flush();
@@ -90,20 +103,29 @@ public class UserInterface {
             System.out.println("END OUTPUT"); System.out.flush();
         } else if (intResponse==3) {
             vacPerCapitaReponse(sc);
+
         } else if (intResponse==4) {
             avgMarketValueResponse(sc);
         } else if (intResponse==5) {
             totalLiveableAreaResponse(sc);
         } else if (intResponse==6) {
             totalMarketValueResponse(sc);
-        } else {
+        } else if (intResponse==7){
             additionalFeature(sc);
         }
-        sc.close();
-
+        return intResponse;
     }
 
     public void vacPerCapitaReponse(Scanner sc) throws IOException {
+        if (processor.getPopulationFileName() == null) {
+            System.out.println("The population file is not available"); System.out.flush();
+            display(sc);
+        }
+        if (processor.getCovidFileName() == null) {
+            System.out.println("The Covid file is not available"); System.out.flush();
+            display(sc);
+        }
+
         System.out.println("Do you want to review the full or partial vaccination status? - please respond with 'full' or 'partial:");
         System.out.flush();
         System.out.println("> "); System.out.flush();
@@ -127,7 +149,7 @@ public class UserInterface {
         boolean b1 = m1.find();
         if (b1==false) {
             System.out.println("Please enter a valid response"); System.out.flush();
-            vacPerCapitaReponse(sc);
+            display(sc);
         }
         ArrayList<String> PerCapitaDate = processor.vacPerCapita(vaccinationResponse, dateResponse, processor.getCovidList(),
                 processor.getPopulationList());
@@ -143,6 +165,11 @@ public class UserInterface {
     }
 
     public void avgMarketValueResponse(Scanner sc) throws IOException {
+        if (processor.getPropertyFileName() == null) {
+            System.out.println("The properties file is not available"); System.out.flush();
+            display(sc);
+        }
+
         int avgMarketValue=0;
         System.out.println("Please enter a 5 digit zip code?");
         System.out.flush();
@@ -168,6 +195,11 @@ public class UserInterface {
     }
 
     public void totalLiveableAreaResponse(Scanner sc) throws IOException {
+        if (processor.getPropertyFileName() == null) {
+            System.out.println("The property file is not available"); System.out.flush();
+            display(sc);
+        }
+
         int totalLiveableAreaResponse=0;
         System.out.println("Please enter a 5 digit zip code?");
         System.out.flush();
@@ -193,6 +225,14 @@ public class UserInterface {
     }
 
     public void totalMarketValueResponse(Scanner sc) throws IOException {
+        if (processor.getPopulationFileName() == null) {
+            System.out.println("The population file is not available"); System.out.flush();
+            display(sc);
+        }
+        if (processor.getPropertyFileName() == null) {
+            System.out.println("The property file is not available"); System.out.flush();
+            display(sc);
+        }
         int totalMarketValueResponse=0;
         System.out.println("Please enter a 5 digit zip code?");
         System.out.flush();

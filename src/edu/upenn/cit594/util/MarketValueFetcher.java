@@ -7,10 +7,10 @@ public class MarketValueFetcher extends RealEstateAverageableAttributeFetcher {
     }
 
 
-    public int fetchAttribute(Property p) {
-        int output = 0;
+    public double fetchAttribute(Property p) {
+        double output = 0;
         try {
-            output = Integer.parseInt(p.getMarketValue());
+            output = Double.parseDouble(p.getMarketValue());
             return output;
         } catch (NumberFormatException e) {
             output = 0;

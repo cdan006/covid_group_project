@@ -197,19 +197,14 @@ public class Processor {
         }
 
 
-        int numeratorTotal = 0;
-        int denominatorCount = 0;
-
+        double numeratorTotal = 0;
+        double denominatorCount = 0;
         for (Property p : propertyList) {
-        //int attribute = a.fetchAttribute(p);
-        //String zipCheck = p.getZip();
             if (zip.equals(p.getZip()) && a.fetchAttribute(p)>0) {
                 denominatorCount++;
                 numeratorTotal = numeratorTotal + a.fetchAttribute(p);
             }
-        }
-        if (denominatorCount == 0) {
-            return 0;
+            //p2 = String.valueOf(a.fetchAttribute(p));
         }
         double outputAverage = (double) (numeratorTotal / denominatorCount);
         return (int) outputAverage;
@@ -306,15 +301,17 @@ public class Processor {
             return totalMarketPerCapitaResults.get(z);
         }
 
-        int numeratorTotalMarketValue = 0;
-        int denominatorPopulation = 0;
+        long numeratorTotalMarketValue = 0;
+        double denominatorPopulation = 0;
 
         //get the numerator
         for (Property p : propertyList) {
-            if (zip.equals(p.getZip())) {
+            if (zip.equals(p.getZip()) && p.getMarketValue()!=null) {
                 try {
-                    int currentMarketValueAsInt = Integer.parseInt(p.getMarketValue());
-                    numeratorTotalMarketValue = numeratorTotalMarketValue + currentMarketValueAsInt;
+                    double currentMarketValueAsLong = Double.parseDouble(p.getMarketValue());
+                    if (currentMarketValueAsLong>0) {
+                        numeratorTotalMarketValue += (long) currentMarketValueAsLong;
+                    }
                 }
                 catch (NumberFormatException e) {
                     //do NOTHING
@@ -330,8 +327,10 @@ public class Processor {
             String pZip = p.getZip();
             if (zip.equals(pZip)) {
                 try {
-                    int currentPopulationAsInt = Integer.parseInt(p.getPopulation());
-                    denominatorPopulation = denominatorPopulation + currentPopulationAsInt;
+                    double currentPopulationAsDouble = Double.parseDouble(p.getPopulation());
+                    if (currentPopulationAsDouble>0) {
+                        denominatorPopulation += currentPopulationAsDouble;
+                    }
                 }
                 catch (NumberFormatException e) {
                     //do NOTHING
@@ -340,9 +339,6 @@ public class Processor {
                 }
 
             }
-        }
-        if (denominatorPopulation == 0) {
-            return 0;
         }
         double average = (double) (numeratorTotalMarketValue / denominatorPopulation);
         //update the cache
@@ -393,8 +389,6 @@ public class Processor {
                                     Integer.parseInt(population))));
                 } catch (Exception e) {}
             }
-
-
 
         }
         for (String s : averageMarketValueByZip.keySet()) {
@@ -457,72 +451,4 @@ public class Processor {
         return propertyReader.getPropertyList();
     }
 
-    public ArrayList<String> boosterPerCapita(String date, List<Covid> covidList,
-                                              List<Population> populationList) {
-        ArrayList<String> output = new ArrayList<>();
-
-        //error handling
-        if (populationList == null) {
-            return null;
-            //QUESTION - IS THIS GOOD ENOUGH FOR UI?
-        }
-        //error check - empty argument
-        else if (populationList.isEmpty()) {
-            return null;
-            //QUESTION - IS THIS GOOD ENOUGH FOR UI?
-        }
-        else if (covidList == null) {
-            return null;
-            //QUESTION - IS THIS GOOD ENOUGH FOR UI?
-        }
-        //error check - empty argument
-        else if (covidList.isEmpty()) {
-            return null;
-            //QUESTION - IS THIS GOOD ENOUGH FOR UI?
-        }
-        String vacType = "full";
-        //check the cache
-        vacPerCapitaInputKey v = new vacPerCapitaInputKey(vacType, date, covidList, populationList);
-        if (vacPerCapitaResults.containsKey(v)) {
-            return vacPerCapitaResults.get(v);
-        }
-
-        //make a HashMaps from the COVID list, one comparing ZIP to count of partial /full at our date
-        HashMap<String, String> vacsByZip = new HashMap<>();
-        for (Covid c : covidList) {
-            String currentZip = c.getZip();
-            String currentDate = c.getDate();
-            String currentPartial = c.getPartialVac();
-            String currentFully = c.getFullyVac();
-            String currentBooster = c.getBoosters();
-            if (currentDate.equals(date)) {
-                //have the right ZIP for the date, now need to determine whether we grab partial or full
-                vacsByZip.put(currentZip, currentBooster);
-            }
-        }
-
-        //go through each ZIP in the population list, use the HashMap to compare the vac count to the pop
-        //then create a string with the ZIP and rate, add to end list
-
-        for (Population p : populationList) {
-            String pZip = p.getZip();
-            try {
-                float currentZipPopCount = (int) Integer.parseInt(p.getPopulation());
-                String vacCountString = vacsByZip.get(pZip); //get the vac count from the hashMap
-                float vacCount = (int) Integer.parseInt(vacCountString);
-                float vacRate = (vacCount / currentZipPopCount);
-                String vacRateString = String.format("%.4f", vacRate);
-                String zipOutput = pZip + " " + vacRateString;
-                output.add(zipOutput);
-                //QUESTION - NEED TO CONFIRM THIS TRY CATCH SETUP WORKS
-            }
-            catch (NumberFormatException e) {
-                //do NOTHING
-
-                //TO DO - PROBABLY NEED TO DO SOMETHING BETTER THAN THIS
-            }
-        } //end of the population for each loop
-        Collections.sort(output); //sort the list - will put the ZIP codes in the right order for printing
-        return output;
-    }
 }

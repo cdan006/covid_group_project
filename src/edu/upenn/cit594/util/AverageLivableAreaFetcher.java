@@ -1,5 +1,7 @@
 package edu.upenn.cit594.util;
 
+import static java.lang.Integer.parseInt;
+
 public class AverageLivableAreaFetcher extends RealEstateAverageableAttributeFetcher {
 
     public AverageLivableAreaFetcher() {
@@ -7,10 +9,13 @@ public class AverageLivableAreaFetcher extends RealEstateAverageableAttributeFet
     }
 
 
-    public int fetchAttribute(Property p) {
-        int output = 0;
+    public double fetchAttribute(Property p) {
+        double output = 0;
+        if (p.getTotalLiveableArea()==null) {
+            return output;
+        }
         try {
-            output = Integer.parseInt(p.getTotalLiveableArea());
+            output = Double.parseDouble(p.getTotalLiveableArea());
             return output;
         } catch (NumberFormatException e) {
             output = 0;
