@@ -351,14 +351,6 @@ public class Processor {
                                       List<Property> propertyList,
                                       String date) { //vacation rate of the richest zip code and the poorest zip code
         //error handling
-
-
-
-
-        //check the cache
-
-
-
         String[] output = new String[2]; //first is richest vax rate, second is poorest vax rate
 
         HashMap<String, String> popByZip = new HashMap<>();
@@ -372,45 +364,58 @@ public class Processor {
             averageMarketValueByZip.put(zip, Integer.toString(zipMarketValuePerCapita));
         }
 
-        HashMap<String, String> vaxRateByZip = new HashMap<>();
-        String maxMarketValue = "00000000";
-        String richestZip = null;
-        String minMarketValue = "9999999";
-        String poorestZip = null;
+        HashMap<String, String> vacsByZip = new HashMap<>();
         for (Covid c : covidList) {
             String currentZip = c.getZip();
             String currentDate = c.getDate();
-            String currentFully = c.getFullyVac();
-            String population = popByZip.get(currentZip);
+            String currentPartial = c.getPartialVac();
             if (currentDate.equals(date)) {
-                try {
-                    vaxRateByZip.put(currentZip, String.format("%.4f",
-                            (Integer.parseInt(currentFully) /
-                                    Integer.parseInt(population))));
-                } catch (Exception e) {}
-            }
+                //have the right ZIP for the date, now need to determine whether we grab partial or full
 
+                vacsByZip.put(currentZip, currentPartial);
+            }
         }
+
+        HashMap<String, Double> vacRateByZip = new HashMap<>();
+        for (String zip : popByZip.keySet()) {
+            String population = popByZip.get(zip);
+            String vacs = vacsByZip.get(zip);
+            double parsedPopulation = Double.parseDouble(population);
+            double parsedVacs = Double.parseDouble(vacs);
+            double vaxRate = (parsedVacs / parsedPopulation);
+            vacRateByZip.put(zip, vaxRate);
+        }
+
+        //now we make the comparison
+        double maxMarketValue = 0;
+        String richestZip = null;
+        double minMarketValue = 9999999;
+        String poorestZip = null;
+
         for (String s : averageMarketValueByZip.keySet()) {
-            double maxMarketValueTemp = 00000000;
-            double minMarketValueTemp = 9999999;
-            double avgMarketValueByZip = Double.parseDouble(averageMarketValueByZip.get(s));
+            //double maxMarketValueTemp = 00000000;
+            //double minMarketValue = 99999999;
+            double marketValueByZip = Double.parseDouble(averageMarketValueByZip.get(s));
             //if (Double.parseDouble(maxMarketValue) <
             //		Double.parseDouble(averageMarketValueByZip.get(s))) {
-            if (maxMarketValueTemp <
-                    avgMarketValueByZip) {
-                maxMarketValue = averageMarketValueByZip.get(s);
-                richestZip = s;
-            }
-            if (minMarketValueTemp <
-                    avgMarketValueByZip) {
-                minMarketValue = averageMarketValueByZip.get(s);
-                poorestZip = s;
+            for (String v: vacRateByZip.keySet()) {
+                if (v.equals(s)) {
+                    if (maxMarketValue <
+                            marketValueByZip) {
+                        maxMarketValue = marketValueByZip;
+                        richestZip = s;
+                    }
+                    if (minMarketValue >
+                            marketValueByZip) {
+                        minMarketValue = marketValueByZip;
+                        poorestZip = s;
+                    }
+                }
+
             }
         }
-
-        output[0] = vaxRateByZip.get(richestZip);
-        output[1] = vaxRateByZip.get(poorestZip);
+        output[0] = vacRateByZip.get(richestZip).toString();
+        output[1] = vacRateByZip.get(poorestZip).toString();
 
         return output;
     }

@@ -39,7 +39,9 @@ public class UserInterface {
         Scanner sc = new Scanner(System.in);
         int intResponse = display(sc);
         while (intResponse !=0) {
+            System.out.flush();
             intResponse = display(sc);
+            System.out.flush();
         }
         sc.close();
     }
@@ -259,7 +261,7 @@ public class UserInterface {
 
     public void additionalFeature(Scanner sc) throws IOException {
         String addFeatureResponse = null;
-        System.out.println("Do you want to know the highest market value per capita zip code covid rate or highest market value per capita covid rate?- please enter 'highest' or 'lowest'" );
+        System.out.println("Do you want to know the highest market value per capita zip code covid rate or lowest market value per capita covid rate?- please enter 'highest' or 'lowest'" );
         System.out.flush();
         System.out.println("> "); System.out.flush();
         String zipResponse = sc.nextLine();
@@ -291,15 +293,30 @@ public class UserInterface {
 
 
         if (zipResponse.equals("highest") ) {
-            String[] highestResponse =  processor.extremesCovidRate(processor.getPopulationList(),processor.getCovidList(),processor.getPropertyList(),dateResponse);
-            highestResponse =  processor.extremesCovidRate(processor.getPopulationList(),processor.getCovidList(),processor.getPropertyList(),dateResponse);
-            addFeatureResponse = highestResponse[0];
+            try {
+                String[] highestResponse =  processor.extremesCovidRate(processor.getPopulationList(),processor.getCovidList(),processor.getPropertyList(),dateResponse);
+                addFeatureResponse = highestResponse[0];
+                if (addFeatureResponse==null){
+                    addFeatureResponse="0";
+                }
+            }
+            catch (Exception e) {
+                System.out.flush();
+                System.out.println("No vaccines on that date\n");System.out.flush();
+                display(sc);
+            }
         } else {
-            String[] lowestResponse =  processor.extremesCovidRate(processor.getPopulationList(),processor.getCovidList(),processor.getPropertyList(),dateResponse);
-            addFeatureResponse = lowestResponse[1];
-        }
-        if (addFeatureResponse==null) {
-            addFeatureResponse="0";
+            try {
+                String [] lowestResponse =  processor.extremesCovidRate(processor.getPopulationList(),processor.getCovidList(),processor.getPropertyList(),dateResponse);
+                addFeatureResponse = lowestResponse[1];
+                if (addFeatureResponse==null){
+                    addFeatureResponse="0";
+                }
+            } catch (Exception e) {
+                System.out.flush();
+                System.out.println("No vaccines on that date\n");System.out.flush();
+                display(sc);
+            }
         }
         System.out.println("BEGIN OUTPUT");
         System.out.println(addFeatureResponse); System.out.flush();
